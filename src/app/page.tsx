@@ -1,103 +1,204 @@
-import Image from "next/image";
+"use client";
+
+import { useRef, useState, useEffect } from "react";
+
+function CustomAudioPlayer({ src, label }: { src: string; label: string }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [duration, setDuration] = useState(0);
+  const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const update = () => {
+      setProgress(audio.currentTime);
+      setDuration(audio.duration);
+    };
+
+    audio.addEventListener("timeupdate", update);
+    return () => audio.removeEventListener("timeupdate", update);
+  }, []);
+
+  // Toggle play / pause
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused) {
+      audio.play();
+      setIsPlaying(true);
+    } else {
+      audio.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  // Volume change from slider
+  const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const vol = parseFloat(e.target.value);
+    setVolume(vol);
+    if (audioRef.current) audioRef.current.volume = vol;
+    setMuted(vol === 0);
+  };
+
+  // Click icon to mute/unmute
+  const toggleMute = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (muted) {
+      audio.volume = volume || 1;
+      setMuted(false);
+    } else {
+      audio.volume = 0;
+      setMuted(true);
+    }
+  };
+
+  const formatTime = (t: number) => {
+    if (isNaN(t)) return "--:--";
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
+  return (
+    <div className="bg-zinc-800/80 backdrop-blur-md p-4 rounded-lg hover:bg-zinc-700/80 transition">
+      <p className="text-lg font-medium mb-4 text-center">{label}</p>
+      <audio ref={audioRef} src={src} preload="metadata" />
+
+      <div className="flex items-center gap-2 text-sm text-zinc-300">
+        {/* Play / Pause */}
+        <button onClick={togglePlay} className="p-1 hover:opacity-80 text-white">
+          {isPlaying ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+              <rect x="6" y="4" width="4" height="16" rx="1" />
+              <rect x="14" y="4" width="4" height="16" rx="1" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+              <polygon points="5,4 19,12 5,20" />
+            </svg>
+          )}
+        </button>
+
+        {/* Time elapsed */}
+        <span className="w-12 text-right tabular-nums">{formatTime(progress)}</span>
+
+        {/* Progress bar */}
+        <input
+          type="range"
+          min="0"
+          max={duration || 1}
+          value={progress}
+          onChange={(e) => {
+            const t = parseFloat(e.target.value);
+            if (audioRef.current) audioRef.current.currentTime = t;
+            setProgress(t);
+          }}
+          className="flex-grow accent-zinc-500"
+        />
+
+        {/* Time remaining */}
+        <span className="w-12 tabular-nums">{formatTime(duration - progress)}</span>
+
+        {/* Volume */}
+        <div className="relative group text-white">
+          <button onClick={toggleMute} className="p-1 hover:opacity-80">
+            {muted || volume === 0 ? (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                <path d="M3 9v6h4l5 5V4L7 9H3z" />
+                <line x1="16" y1="8" x2="20" y2="16" stroke="currentColor" strokeWidth="2" />
+                <line x1="20" y1="8" x2="16" y2="16" stroke="currentColor" strokeWidth="2" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                <path d="M3 9v6h4l5 5V4L7 9H3z" />
+                <path d="M16.5 12c0-1.77-.77-3.29-2-4.24v8.48c1.23-.95 2-2.47 2-4.24z" />
+              </svg>
+            )}
+          </button>
+          {/* Vertical slider */}
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={muted ? 0 : volume}
+            onChange={handleVolume}
+            className="absolute bottom-full mb-7 left-1/2 -translate-x-1/2 w-13 h-0.75 -rotate-90 origin-bottom accent-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="relative min-h-screen text-white font-sans overflow-hidden">
+      {/* Background video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        src="/background.mp4"
+      />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
+      <section className="relative z-10 max-w-4xl mx-auto p-6">
+        {/* Header */}
+        <header className="text-center pt-16 pb-6">
+          <h1 className="text-5xl font-bold tracking-tight mb-4">AGUILA</h1>
+          <p className="text-zinc-300 text-lg">Music Producer / Beat Maker</p>
+        </header>
+
+        {/* Socials */}
+        <section className="flex justify-center gap-6 mb-12">
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
+            <img src="/icons/instagram.svg" alt="Instagram" className="w-6 h-6" />
           </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
+          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
+            <img src="/icons/youtube.svg" alt="YouTube" className="w-6 h-6" />
           </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <a href="https://spotify.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
+            <img src="/icons/spotify.svg" alt="Spotify" className="w-6 h-6" />
+          </a>
+          <a href="https://music.apple.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
+            <img src="/icons/apple-music.svg" alt="Apple Music" className="w-6 h-6" />
+          </a>
+        </section>
+
+        {/* Beats list (no section title) */}
+        <section className="mb-16">
+          <ul className="space-y-4">
+            <li>
+              <CustomAudioPlayer src="/beats/midnight-ride.mp3" label="Midnight Ride" />
+            </li>
+            <li>
+              <CustomAudioPlayer src="/beats/shadow-realm.mp3" label="Shadow Realm" />
+            </li>
+            <li>
+              <CustomAudioPlayer src="/beats/neon-dreams.mp3" label="Neon Dreams" />
+            </li>
+            <li>
+              <CustomAudioPlayer src="/beats/echoes.mp3" label="Echoes" />
+            </li>
+            <li>
+              <CustomAudioPlayer src="/beats/nightfall.mp3" label="Nightfall" />
+            </li>
+          </ul>
+        </section>
+
+        {/* Footer */}
+        <footer className="text-center text-zinc-400 text-sm pb-8">
+          <a className="hover:underline" href="mailto:work@aguila.ar">work@aguila.ar</a>
+        </footer>
+      </section>
+    </main>
   );
 }
