@@ -160,16 +160,16 @@ export default function Home() {
 
         {/* Socials */}
         <section className="flex justify-center gap-6 mb-12">
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
+          <a href="https://www.instagram.com/aguila.aguila.aguila/" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
             <img src="/icons/instagram.svg" alt="Instagram" className="w-6 h-6" />
           </a>
-          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
+          <a href="https://www.youtube.com/channel/UCsva0azuQx1hLG_RPSZRABw" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
             <img src="/icons/youtube.svg" alt="YouTube" className="w-6 h-6" />
           </a>
-          <a href="https://spotify.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
+          <a href="https://open.spotify.com/artist/6r82eKGFIiNQcOnSiA8HBH" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
             <img src="/icons/spotify.svg" alt="Spotify" className="w-6 h-6" />
           </a>
-          <a href="https://music.apple.com" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
+          <a href="https://music.apple.com/ar/artist/aguila/1729330672?l=en-GB" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition">
             <img src="/icons/apple-music.svg" alt="Apple Music" className="w-6 h-6" />
           </a>
         </section>
