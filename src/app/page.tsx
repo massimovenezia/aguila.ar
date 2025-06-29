@@ -130,7 +130,8 @@ function CustomAudioPlayer({ src, label }: { src: string; label: string }) {
             step="0.01"
             value={muted ? 0 : volume}
             onChange={handleVolume}
-            className="absolute bottom-full mb-7 left-1/2 -translate-x-1/2 w-13 h-0.75 -rotate-90 origin-bottom accent-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"          />
+            className="absolute bottom-full mb-7 left-1/2 -translate-x-1/2 w-13 h-1 -rotate-90 origin-bottom accent-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"
+          />
         </div>
       </div>
     </div>
@@ -150,7 +151,7 @@ export default function Home() {
         src="/background.mp4"
       />
 
-      <section className="relative z-10 max-w-4xl mx-auto p-6">
+      <section className="relative z-10 max-w-4xl mx-auto p-6 transform scale-90 origin-top">
         {/* Header */}
         <header className="text-center pt-16 pb-6">
           <h1 className="text-5xl font-bold tracking-tight mb-4">AGUILA</h1>
